@@ -6,10 +6,12 @@ import BounceText from './components/BounceText';
 const App: Component = () => {
   const pad = (input: number, length: number) => ('0'.repeat(length) + input).slice(-length);
   const getTimeFormat = (date: Date) => {
-    return `${pad(date.getHours() % 12, 2)}:${pad(date.getMinutes(), 2)}:${pad(
-      date.getSeconds(),
+    return `${pad(date.getHours() == 0 ? 12 : date.getHours() % 12, 2)}:${pad(
+      date.getMinutes(),
       2
-    )} ${pad(date.getMilliseconds(), 4)} ${date.getHours() > 12 ? 'PM' : 'AM'}`;
+    )}:${pad(date.getSeconds(), 2)} ${pad(date.getMilliseconds(), 3)} ${
+      date.getHours() > 12 ? 'PM' : 'AM'
+    }`;
   };
 
   const [timeText, setTimeText] = createSignal(getTimeFormat(new Date()));
@@ -39,7 +41,7 @@ const App: Component = () => {
     // wake up!
     await getTime();
 
-    const samples = 5;
+    const samples = 3;
     let averageOffset = 0;
     let averageError = 0;
 
@@ -60,8 +62,8 @@ const App: Component = () => {
     offset = averageOffset / samples;
     setError(
       `Your clock is ${
-        (Math.sign(offset) == -1 ? '' : '+') + String(offset / 1000).substring(0, 6)
-      }s inaccurate \u00b1${String(averageError / samples / 1000 / 2).substring(0, 6)}s`
+        (Math.sign(-offset) == -1 ? '' : '+') + (-offset / 1000).toFixed(4)
+      }s inaccurate \u00b1${(averageError / samples / 1000 / 2).toFixed(4)}s`
     );
 
     fetching = false;
