@@ -16,6 +16,7 @@ const App: Component = () => {
 
   const [timeText, setTimeText] = createSignal(getTimeFormat(new Date()));
   const [error, setError] = createSignal('Synchronizing clock...');
+  const [timezone, setTimezone] = createSignal('');
 
   const getTime = async () => {
     const response = await fetch('https://time.kunet.workers.dev/');
@@ -66,6 +67,10 @@ const App: Component = () => {
       }s inaccurate \u00b1${(averageError / samples / 1000 / 2).toFixed(4)}s`
     );
 
+    const zoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const zoneOffset = new Date().getTimezoneOffset() / 60;
+    setTimezone(`${zoneName} (UTC${Math.sign(zoneOffset) == -1 ? '-' : '+'}${zoneOffset})`);
+
     fetching = false;
 
     updateTime();
@@ -98,6 +103,7 @@ const App: Component = () => {
         <h1 class="text-center text-4xl text-slate-400 mt-32">the exact time is</h1>
         <h1 class="text-center text-7xl mt-2 font-mono">{timeText()}</h1>
         <h1 class="text-center text-4xl text-slate-400 mt-2">{error()}</h1>
+        <h1 class="text-center text-3xl text-slate-400 mt-2">{timezone()}</h1>
       </Motion.div>
     </div>
   );
